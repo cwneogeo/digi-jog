@@ -3,567 +3,1086 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Digi-Jog — Rotational Gesture Video Navigation | Patent Pending</title>
-<meta name="description" content="Digi-Jog is a patented method for navigating video content on touch-sensitive devices using a free-form rotational gesture. Patent Pending — Inventor: Carl Julian Wittig.">
+<title>Digi-Jog — Rotational Gesture Video Navigation | U.S. Patent Pending</title>
+<meta name="description" content="Digi-Jog is a patent-pending touch gesture for video navigation. A circular gesture, anywhere on a playing video, controls scrubbing without an on-screen progress bar. Available for licensing.">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='28' fill='%231A3A5C'/><path d='M 32 12 A 20 20 0 1 1 12 32' fill='none' stroke='%2300B4D8' stroke-width='5' stroke-linecap='round'/><polygon points='8,28 16,26 12,38' fill='%2300B4D8'/><circle cx='32' cy='32' r='5' fill='%2300B4D8'/></svg>">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
     --navy: #1A3A5C;
+    --navy-deep: #0d2240;
     --blue: #2E75B6;
     --accent: #00B4D8;
+    --accent-bright: #14C9F0;
     --white: #ffffff;
     --off-white: #F5F7FA;
     --gray: #6B7280;
+    --gray-soft: #94A3B8;
     --light-gray: #E5E7EB;
     --dark: #111827;
-    --radius: 12px;
-    --radius-sm: 8px;
+    --radius: 14px;
+    --radius-sm: 10px;
+    --shadow-sm: 0 1px 3px rgba(15,30,55,0.06), 0 1px 2px rgba(15,30,55,0.04);
+    --shadow-md: 0 6px 16px rgba(15,30,55,0.08), 0 2px 6px rgba(15,30,55,0.05);
+    --shadow-lg: 0 24px 56px rgba(15,30,55,0.18), 0 8px 16px rgba(15,30,55,0.08);
   }
 
   html { scroll-behavior: smooth; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--off-white);
     color: var(--dark);
     min-height: 100vh;
-    line-height: 1.6;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-bright); }
+
+  /* ── LOGO ── */
+  .logo-mark {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .logo-lockup {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .logo-lockup .wordmark {
+    color: var(--white);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    font-size: 19px;
+    line-height: 1;
+  }
+  .logo-lockup .wordmark span { color: var(--accent); }
 
   /* ── NAV ── */
   nav {
     background: var(--navy);
-    padding: 0 1.5rem;
+    padding: 0 1.75rem;
     display: flex; align-items: center; justify-content: space-between;
-    height: 56px; position: sticky; top: 0; z-index: 100;
+    height: 64px; position: sticky; top: 0; z-index: 100;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
-  .nav-logo { color: var(--white); font-size: 18px; font-weight: 700; letter-spacing: 0.03em; }
-  .nav-logo span { color: var(--accent); }
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+  .nav-link {
+    color: rgba(255,255,255,0.78);
+    font-size: 14px; font-weight: 500;
+    transition: color 0.15s;
+    display: none;
+  }
+  .nav-link:hover { color: var(--white); }
+  @media (min-width: 720px) { .nav-link { display: inline; } }
   .nav-badge {
     font-size: 11px; color: var(--accent); border: 1px solid var(--accent);
-    padding: 3px 10px; border-radius: 20px; letter-spacing: 0.05em;
+    padding: 4px 12px; border-radius: 20px; letter-spacing: 0.05em; font-weight: 600;
   }
 
   /* ── HERO ── */
   .hero {
-    background: linear-gradient(135deg, var(--navy) 0%, #0d2240 100%);
+    background:
+      radial-gradient(1100px 500px at 50% -120px, rgba(0,180,216,0.18), transparent 60%),
+      linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
     color: var(--white); text-align: center;
-    padding: 4rem 1.5rem 3rem;
+    padding: 5rem 1.5rem 4rem;
+    position: relative;
+    overflow: hidden;
   }
+  .hero::after {
+    content: '';
+    position: absolute; left: 0; right: 0; bottom: -1px; height: 40px;
+    background: linear-gradient(180deg, transparent, var(--off-white));
+    pointer-events: none;
+  }
+
+  .hero-logo {
+    margin: 0 auto 1.5rem;
+    width: 76px; height: 76px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(0,180,216,0.4);
+    border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 12px 32px rgba(0,180,216,0.18);
+  }
+
   .hero h1 {
-    font-size: clamp(2rem, 6vw, 3.2rem);
-    font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem;
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    font-weight: 800; letter-spacing: -0.025em;
+    margin-bottom: 1rem; line-height: 1.1;
   }
   .hero h1 span { color: var(--accent); }
-  .hero p {
-    font-size: clamp(1rem, 2.5vw, 1.2rem);
-    color: rgba(255,255,255,0.75); max-width: 560px; margin: 0 auto 2rem;
+  .hero .tagline {
+    font-size: clamp(1rem, 2.4vw, 1.18rem);
+    color: rgba(255,255,255,0.78); max-width: 620px; margin: 0 auto 2.25rem;
+    line-height: 1.55;
   }
   .hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .badge {
-    font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 20px;
     letter-spacing: 0.04em;
   }
-  .badge-patent { background: rgba(0,180,216,0.2); color: var(--accent); border: 1px solid var(--accent); }
-  .badge-inventor { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+  .badge-patent { background: rgba(0,180,216,0.18); color: var(--accent); border: 1px solid rgba(0,180,216,0.5); }
+  .badge-app { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.82); border: 1px solid rgba(255,255,255,0.18); }
+
+  .hero-cta-row {
+    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+    margin-top: 1.75rem;
+  }
+  .btn-primary, .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 22px; border-radius: 30px;
+    font-size: 14px; font-weight: 600; letter-spacing: 0.01em;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    cursor: pointer; border: none; text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--accent); color: var(--white);
+    box-shadow: 0 6px 18px rgba(0,180,216,0.35);
+  }
+  .btn-primary:hover { background: var(--accent-bright); transform: translateY(-1px); color: var(--white); }
+  .btn-ghost {
+    background: transparent; color: rgba(255,255,255,0.92);
+    border: 1px solid rgba(255,255,255,0.32);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); color: var(--white); }
 
   /* ── SECTION ── */
-  section { padding: 3rem 1.5rem; max-width: 800px; margin: 0 auto; }
+  section { padding: 4rem 1.5rem; max-width: 880px; margin: 0 auto; }
   section h2 {
-    font-size: 1.5rem; font-weight: 700; color: var(--navy);
-    margin-bottom: 1rem; text-align: center;
+    font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800; color: var(--navy);
+    margin-bottom: 0.5rem; text-align: center; letter-spacing: -0.015em;
+  }
+  section .section-sub {
+    text-align: center; color: var(--gray);
+    max-width: 580px; margin: 0 auto 2rem;
+    font-size: 15px;
   }
 
-  /* ── DEMO ── */
-  #demo { max-width: 700px; }
   .demo-label {
-    text-align: center; font-size: 13px; color: var(--gray);
-    margin-bottom: 1rem; font-weight: 500; letter-spacing: 0.03em;
+    text-align: center; font-size: 12px; color: var(--gray);
+    margin-bottom: 1rem; font-weight: 600; letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
-  #pw {
+  /* ── DEMO PLAYER ── */
+  .demo-block {
+    max-width: 760px; margin: 0 auto;
+  }
+  .demo-block + .demo-block { margin-top: 3rem; }
+  .demo-title {
+    font-size: 17px; font-weight: 700; color: var(--navy);
+    margin-bottom: 0.4rem; letter-spacing: -0.005em;
+  }
+  .demo-desc {
+    font-size: 14px; color: var(--gray); margin-bottom: 1rem;
+  }
+
+  .player-wrap {
     position: relative; width: 100%; background: #0a0a0a;
     border-radius: var(--radius); overflow: hidden;
     aspect-ratio: 16/9; cursor: none; user-select: none; touch-action: none;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(255,255,255,0.06);
   }
-  #vc { width: 100%; height: 100%; display: block; }
+  .player-wrap canvas, .player-wrap video {
+    width: 100%; height: 100%; display: block; object-fit: cover;
+  }
 
-  #ring {
+  .ring {
     position: absolute; border-radius: 50%;
     border: 2.5px solid rgba(255,255,255,0);
     pointer-events: none; transform: translate(-50%,-50%);
     width: 80px; height: 80px; display: none;
     transition: border-color 0.12s;
   }
-  #ring.on { border-color: rgba(255,255,255,0.9); display: block; }
+  .ring.on { border-color: rgba(255,255,255,0.92); display: block; }
 
-  #dot {
+  .dot {
     position: absolute; width: 13px; height: 13px; border-radius: 50%;
     background: white; transform: translate(-50%,-50%);
     display: none; pointer-events: none;
-    box-shadow: 0 0 0 4px rgba(255,255,255,0.25);
+    box-shadow: 0 0 0 5px rgba(255,255,255,0.22);
   }
-  #dot.on { display: block; }
+  .dot.on { display: block; }
 
-  #arr {
-    position: absolute; top: 12px; right: 14px;
+  .arrow-pill {
+    position: absolute; top: 14px; right: 14px;
     font-size: 13px; font-weight: 600; color: #fff; opacity: 0;
-    background: rgba(0,0,0,0.65); padding: 4px 12px; border-radius: 20px;
+    background: rgba(0,0,0,0.65); padding: 5px 14px; border-radius: 20px;
     pointer-events: none; transition: opacity 0.2s;
+    backdrop-filter: blur(8px);
   }
-  #arr.on { opacity: 1; }
+  .arrow-pill.on { opacity: 1; }
 
-  #si {
-    position: absolute; bottom: 54px; left: 50%; transform: translateX(-50%);
+  .scrub-time {
+    position: absolute; bottom: 56px; left: 50%; transform: translateX(-50%);
     background: rgba(0,0,0,0.78); color: #fff;
-    font-size: 15px; font-weight: 600; padding: 5px 18px; border-radius: 20px;
+    font-size: 16px; font-weight: 700; padding: 6px 20px; border-radius: 22px;
     opacity: 0; pointer-events: none; transition: opacity 0.2s; white-space: nowrap;
+    backdrop-filter: blur(8px);
+    font-variant-numeric: tabular-nums;
   }
-  #si.on { opacity: 1; }
+  .scrub-time.on { opacity: 1; }
 
-  #play-overlay {
+  .play-overlay {
     position: absolute; inset: 0; display: flex;
     align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.38); cursor: pointer; transition: background 0.2s;
+    background: rgba(0,0,0,0.42); cursor: pointer; transition: background 0.2s;
   }
-  #play-overlay:hover { background: rgba(0,0,0,0.52); }
+  .play-overlay:hover { background: rgba(0,0,0,0.55); }
   .play-circle {
-    width: 64px; height: 64px; background: rgba(255,255,255,0.93);
+    width: 72px; height: 72px; background: rgba(255,255,255,0.95);
     border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  }
+  .credit {
+    position: absolute; bottom: 8px; right: 12px;
+    font-size: 10px; color: rgba(255,255,255,0.55);
+    background: rgba(0,0,0,0.4); padding: 3px 8px; border-radius: 4px;
+    pointer-events: none;
   }
 
   /* ── CONTROLS ── */
   .ctrl-bar {
     background: var(--white); border-radius: var(--radius);
     border: 1px solid var(--light-gray); padding: 14px 16px;
-    margin-top: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-top: 12px; box-shadow: var(--shadow-sm);
   }
-  .prog-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .prog-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
   .prog-track {
     flex: 1; height: 4px; background: var(--light-gray);
     border-radius: 2px; overflow: hidden;
   }
-  .prog-fill { height: 100%; background: var(--navy); border-radius: 2px; width: 0%; }
-  .time-lbl { font-size: 12px; color: var(--gray); min-width: 85px; text-align: right; font-variant-numeric: tabular-nums; }
+  .prog-fill { height: 100%; background: var(--navy); border-radius: 2px; width: 0%; transition: width 0.05s linear; }
+  .time-lbl { font-size: 12px; color: var(--gray); min-width: 90px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
   .btn-row { display: flex; align-items: center; justify-content: space-between; }
   .btns { display: flex; gap: 8px; }
   .btn {
     background: none; border: 1px solid var(--light-gray);
-    border-radius: var(--radius-sm); padding: 6px 14px;
-    font-size: 13px; color: var(--dark); cursor: pointer;
+    border-radius: var(--radius-sm); padding: 7px 16px;
+    font-size: 13px; font-weight: 500; color: var(--dark); cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
   }
-  .btn:hover { background: var(--off-white); border-color: #ccc; }
+  .btn:hover { background: var(--off-white); border-color: #b8c0c8; }
   .status-pill {
-    font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; padding: 5px 13px; border-radius: 20px;
     background: var(--off-white); color: var(--gray);
     transition: background 0.2s, color 0.2s;
   }
   .status-pill.scrub { background: #EFF6FF; color: #1D4ED8; }
   .status-pill.play { background: #F0FDF4; color: #15803D; }
 
-  /* ── TIPS ── */
-  .tips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .tips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
   .tip {
     background: var(--white); border: 1px solid var(--light-gray);
-    border-radius: var(--radius-sm); padding: 12px; text-align: center;
+    border-radius: var(--radius-sm); padding: 14px 12px; text-align: center;
+    transition: border-color 0.15s, transform 0.15s;
   }
-  .tip-icon { font-size: 20px; margin-bottom: 4px; }
-  .tip-title { font-size: 12px; font-weight: 600; color: var(--dark); }
-  .tip-sub { font-size: 11px; color: var(--gray); margin-top: 2px; }
+  .tip:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .tip-icon { font-size: 22px; margin-bottom: 4px; line-height: 1; }
+  .tip-title { font-size: 12.5px; font-weight: 700; color: var(--dark); }
+  .tip-sub { font-size: 11px; color: var(--gray); margin-top: 3px; }
 
   /* ── HOW IT WORKS ── */
-  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-top: 1.5rem; }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-top: 1.75rem; }
   .step {
     background: var(--white); border: 1px solid var(--light-gray);
-    border-radius: var(--radius); padding: 1.25rem; text-align: center;
+    border-radius: var(--radius); padding: 1.4rem 1.25rem; text-align: center;
+    transition: transform 0.15s, box-shadow 0.15s;
   }
+  .step:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
   .step-num {
     width: 36px; height: 36px; border-radius: 50%;
     background: var(--navy); color: var(--white);
     font-size: 16px; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 0.75rem;
+    margin: 0 auto 0.85rem;
   }
-  .step h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--navy); }
-  .step p { font-size: 13px; color: var(--gray); line-height: 1.5; }
+  .step h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--navy); }
+  .step p { font-size: 13px; color: var(--gray); line-height: 1.55; }
 
-  /* ── DISTINCTION ── */
-  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 1.5rem; }
+  /* ── COMPARISON ── */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 1.75rem; }
   .compare-card {
-    border-radius: var(--radius); padding: 1.25rem;
+    border-radius: var(--radius); padding: 1.4rem;
     border: 1px solid var(--light-gray);
   }
   .compare-card.old { background: #FEF2F2; border-color: #FECACA; }
-  .compare-card.new { background: #F0FDF4; border-color: #BBF7D0; }
-  .compare-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .compare-card.new { background: #ECFDF5; border-color: #A7F3D0; }
+  .compare-card h3 { font-size: 14.5px; font-weight: 700; margin-bottom: 12px; }
   .compare-card.old h3 { color: #991B1B; }
-  .compare-card.new h3 { color: #166534; }
+  .compare-card.new h3 { color: #065F46; }
   .compare-card ul { list-style: none; }
-  .compare-card ul li { font-size: 13px; padding: 3px 0; display: flex; gap: 6px; }
-  .compare-card.old li::before { content: '✕'; color: #DC2626; font-size: 11px; margin-top: 2px; }
-  .compare-card.new li::before { content: '✓'; color: #16A34A; font-size: 11px; margin-top: 2px; }
+  .compare-card ul li { font-size: 13.5px; padding: 4px 0; display: flex; gap: 8px; line-height: 1.5; }
+  .compare-card.old li::before { content: '✕'; color: #DC2626; font-weight: 700; flex-shrink: 0; }
+  .compare-card.new li::before { content: '✓'; color: #059669; font-weight: 700; flex-shrink: 0; }
+
+  /* ── APPLICATIONS / TARGET MARKETS ── */
+  .apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 1.75rem; }
+  .app {
+    background: var(--white);
+    border: 1px solid var(--light-gray);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  }
+  .app:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--accent); }
+  .app-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700;
+    margin-bottom: 0.85rem;
+  }
+  .app h3 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .app p { font-size: 12.5px; color: var(--gray); line-height: 1.55; }
+
+  /* ── LICENSING ── */
+  .licensing-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px; margin-top: 1.75rem;
+  }
+  .license-card {
+    background: var(--white);
+    border: 1px solid var(--light-gray);
+    border-radius: var(--radius);
+    padding: 1.4rem 1.25rem;
+  }
+  .license-card .label {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .license-card h3 { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .license-card p { font-size: 13.5px; color: var(--gray); line-height: 1.6; }
 
   /* ── CTA ── */
   .cta-section {
-    background: var(--navy); color: var(--white);
-    text-align: center; padding: 3rem 1.5rem;
+    background:
+      radial-gradient(900px 400px at 50% -50px, rgba(0,180,216,0.15), transparent 60%),
+      linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color: var(--white);
+    text-align: center; padding: 4rem 1.5rem;
+    position: relative; overflow: hidden;
   }
-  .cta-section h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--white); }
-  .cta-section p { color: rgba(255,255,255,0.7); margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+  .cta-section h2 { font-size: 1.9rem; font-weight: 800; margin-bottom: 0.75rem; color: var(--white); letter-spacing: -0.015em; }
+  .cta-section p { color: rgba(255,255,255,0.75); margin-bottom: 1.75rem; max-width: 580px; margin-left: auto; margin-right: auto; line-height: 1.65; }
   .cta-email {
-    display: inline-block; background: var(--accent);
-    color: var(--white); font-weight: 700; font-size: 15px;
-    padding: 12px 28px; border-radius: 30px; text-decoration: none;
-    transition: opacity 0.2s;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--accent); color: var(--white);
+    font-weight: 700; font-size: 15px;
+    padding: 13px 28px; border-radius: 30px; text-decoration: none;
+    transition: background 0.15s, transform 0.15s;
+    box-shadow: 0 12px 32px rgba(0,180,216,0.35);
   }
-  .cta-email:hover { opacity: 0.88; }
+  .cta-email:hover { background: var(--accent-bright); transform: translateY(-1px); color: var(--white); }
+  .cta-secondary {
+    display: block; margin-top: 1rem;
+    color: rgba(255,255,255,0.6); font-size: 13px;
+  }
+  .cta-secondary a { color: rgba(255,255,255,0.8); text-decoration: underline; text-underline-offset: 3px; }
+  .cta-secondary a:hover { color: var(--white); }
 
   /* ── FOOTER ── */
   footer {
-    background: #0d2240; color: rgba(255,255,255,0.45);
-    text-align: center; padding: 1.5rem; font-size: 12px;
+    background: var(--navy-deep); color: rgba(255,255,255,0.5);
+    text-align: center; padding: 2rem 1.5rem; font-size: 12px;
     letter-spacing: 0.04em;
   }
+  footer .footer-row {
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+  footer .sep { color: rgba(255,255,255,0.2); }
+  footer a { color: rgba(255,255,255,0.7); }
+  footer a:hover { color: var(--white); }
 
-  @media (max-width: 480px) {
+  @media (max-width: 600px) {
     .compare { grid-template-columns: 1fr; }
     .tips { grid-template-columns: 1fr 1fr 1fr; }
-    .hero { padding: 3rem 1rem 2rem; }
+    .hero { padding: 3.5rem 1.25rem 3rem; }
+    section { padding: 3rem 1.25rem; }
   }
 </style>
 </head>
 <body>
 
+<!-- ═══════════════════════ NAV ═══════════════════════ -->
 <nav>
-  <div class="nav-logo">DIGI<span>-JOG</span></div>
-  <div class="nav-badge">PATENT PENDING</div>
+  <a href="#" class="logo-lockup" style="text-decoration:none;">
+    <svg class="logo-mark" width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-label="Digi-Jog logo">
+      <circle cx="32" cy="32" r="28" fill="#1A3A5C" stroke="#00B4D8" stroke-width="1"/>
+      <path d="M 32 12 A 20 20 0 1 1 12 32" fill="none" stroke="#00B4D8" stroke-width="4.5" stroke-linecap="round"/>
+      <polygon points="8,28 17,26 12,38" fill="#00B4D8"/>
+      <circle cx="32" cy="32" r="5" fill="#00B4D8"/>
+    </svg>
+    <div class="wordmark">DIGI<span>·</span>JOG</div>
+  </a>
+  <div class="nav-right">
+    <a class="nav-link" href="#demo">Demo</a>
+    <a class="nav-link" href="#applications">Applications</a>
+    <a class="nav-link" href="#licensing">Licensing</a>
+    <span class="nav-badge">U.S. PATENT PENDING</span>
+  </div>
 </nav>
 
-<!-- HERO -->
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
 <div class="hero">
-  <h1>Meet <span>Digi-Jog</span></h1>
-  <p>Rotational gesture video navigation — draw a circle anywhere on the screen to scrub through video content.</p>
+  <div class="hero-logo">
+    <svg width="44" height="44" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M 32 8 A 24 24 0 1 1 8 32" fill="none" stroke="#00B4D8" stroke-width="5" stroke-linecap="round"/>
+      <polygon points="3,28 13,25 8,38" fill="#00B4D8"/>
+      <circle cx="32" cy="32" r="6" fill="#00B4D8"/>
+    </svg>
+  </div>
+  <h1>Scrub video<br>with a <span>circle</span>.</h1>
+  <p class="tagline">A patent-pending touch gesture for video navigation. Draw a circle anywhere on the playing video — no progress bar, no on-screen widget, no two-handed grip.</p>
   <div class="hero-badges">
-    <span class="badge badge-patent">Patent Pending</span>
-    <span class="badge badge-inventor">Inventor: Carl Julian Wittig</span>
+    <span class="badge badge-patent">U.S. Patent Application 19/658,510</span>
+    <span class="badge badge-app">Available for Licensing</span>
+  </div>
+  <div class="hero-cta-row">
+    <a class="btn-primary" href="#demo">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><polygon points="3,1 13,7 3,13"/></svg>
+      Try the Demo
+    </a>
+    <a class="btn-ghost" href="#licensing">Licensing →</a>
   </div>
 </div>
 
-<!-- DEMO -->
+<!-- ═══════════════════════ DEMO 1: REAL VIDEO ═══════════════════════ -->
 <section id="demo">
   <h2>Try It</h2>
-  <p class="demo-label">Draw a circle anywhere on the video &mdash; clockwise to advance, counterclockwise to rewind</p>
+  <p class="section-sub">Press play, then draw a circle anywhere on the video to scrub. Clockwise advances, counterclockwise rewinds. Speed of the circle controls scrub speed.</p>
 
-  <div id="pw">
-    <canvas id="vc"></canvas>
-    <div id="ring"></div>
-    <div id="dot"></div>
-    <div id="arr"></div>
-    <div id="si"></div>
-    <div id="play-overlay">
-      <div class="play-circle">
-        <svg width="22" height="22" viewBox="0 0 22 22"><polygon points="6,2 20,11 6,20" fill="#1A3A5C"/></svg>
+  <!-- Demo block 1: Real video footage -->
+  <div class="demo-block">
+    <div class="demo-title">Demo 1 &mdash; Real baseball footage</div>
+    <p class="demo-desc">Press play, then draw a circle anywhere on the picture to scrub. Slow circles step frame-by-frame through a pitch or swing; fast circles fly across innings. The progress bar in the control row never had to move &mdash; that&rsquo;s the point.</p>
+
+    <div class="player-wrap" id="pw1" data-mode="video">
+      <video id="video1" preload="auto" playsinline muted poster="demo-poster.jpg">
+        <source src="digijog-demo.mp4" type="video/mp4">
+      </video>
+      <div class="ring" id="ring1"></div>
+      <div class="dot" id="dot1"></div>
+      <div class="arrow-pill" id="arr1"></div>
+      <div class="scrub-time" id="si1"></div>
+      <div class="play-overlay" id="po1">
+        <div class="play-circle">
+          <svg width="24" height="24" viewBox="0 0 22 22"><polygon points="6,2 20,11 6,20" fill="#1A3A5C"/></svg>
+        </div>
       </div>
+      <div class="credit">Baseball clip courtesy Carl Wittig</div>
+    </div>
+
+    <div class="ctrl-bar">
+      <div class="prog-row">
+        <div class="prog-track"><div class="prog-fill" id="pgb1"></div></div>
+        <div class="time-lbl" id="tl1">0:00 / 0:00</div>
+      </div>
+      <div class="btn-row">
+        <div class="btns">
+          <button class="btn" id="bpl1">Play</button>
+          <button class="btn" id="brs1">Restart</button>
+        </div>
+        <div class="status-pill" id="sb1">Paused</div>
+      </div>
+    </div>
+
+    <div class="tips">
+      <div class="tip"><div class="tip-icon">↻</div><div class="tip-title">Clockwise</div><div class="tip-sub">Forward</div></div>
+      <div class="tip"><div class="tip-icon">↺</div><div class="tip-title">Counter-clockwise</div><div class="tip-sub">Rewind</div></div>
+      <div class="tip"><div class="tip-icon">⏸</div><div class="tip-title">Hold still</div><div class="tip-sub">Pause at frame</div></div>
     </div>
   </div>
 
-  <div class="ctrl-bar">
-    <div class="prog-row">
-      <div class="prog-track"><div class="prog-fill" id="pgb"></div></div>
-      <div class="time-lbl" id="tl">0:00 / 3:00</div>
-    </div>
-    <div class="btn-row">
-      <div class="btns">
-        <button class="btn" id="bpl">Play</button>
-        <button class="btn" id="brs">Restart</button>
-      </div>
-      <div class="status-pill" id="sb">Paused</div>
-    </div>
-  </div>
+  <!-- Demo block 2: Synthetic scenes -->
+  <div class="demo-block">
+    <div class="demo-title">Demo 2 &mdash; Animated scenes</div>
+    <p class="demo-desc">Synthetic scene player with chaptered timeline so you can feel the scrub direction and speed control over a longer clip.</p>
 
-  <div class="tips">
-    <div class="tip"><div class="tip-icon">&#8635;</div><div class="tip-title">Clockwise</div><div class="tip-sub">Fast forward</div></div>
-    <div class="tip"><div class="tip-icon">&#8634;</div><div class="tip-title">Counter-clockwise</div><div class="tip-sub">Rewind</div></div>
-    <div class="tip"><div class="tip-icon">&#9632;</div><div class="tip-title">Hold still</div><div class="tip-sub">Pause at frame</div></div>
+    <div class="player-wrap" id="pw2" data-mode="canvas">
+      <canvas id="vc2"></canvas>
+      <div class="ring" id="ring2"></div>
+      <div class="dot" id="dot2"></div>
+      <div class="arrow-pill" id="arr2"></div>
+      <div class="scrub-time" id="si2"></div>
+      <div class="play-overlay" id="po2">
+        <div class="play-circle">
+          <svg width="24" height="24" viewBox="0 0 22 22"><polygon points="6,2 20,11 6,20" fill="#1A3A5C"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="ctrl-bar">
+      <div class="prog-row">
+        <div class="prog-track"><div class="prog-fill" id="pgb2"></div></div>
+        <div class="time-lbl" id="tl2">0:00 / 3:00</div>
+      </div>
+      <div class="btn-row">
+        <div class="btns">
+          <button class="btn" id="bpl2">Play</button>
+          <button class="btn" id="brs2">Restart</button>
+        </div>
+        <div class="status-pill" id="sb2">Paused</div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- HOW IT WORKS -->
+<!-- ═══════════════════════ HOW IT WORKS ═══════════════════════ -->
 <section>
   <h2>How It Works</h2>
+  <p class="section-sub">A free-form rotational gesture, recognized anywhere on the active video surface — without any displayed user-interface control element.</p>
   <div class="steps">
-    <div class="step"><div class="step-num">1</div><h3>Touch anywhere</h3><p>Place a finger anywhere on the video — no target zone required.</p></div>
-    <div class="step"><div class="step-num">2</div><h3>Draw a circle</h3><p>Move your finger in a circular path directly over the active video.</p></div>
+    <div class="step"><div class="step-num">1</div><h3>Touch anywhere</h3><p>Place a finger anywhere on the playing video. No target zone required.</p></div>
+    <div class="step"><div class="step-num">2</div><h3>Draw a circle</h3><p>Move your finger in a rotational path directly over the active video.</p></div>
     <div class="step"><div class="step-num">3</div><h3>Direction = control</h3><p>Clockwise advances. Counterclockwise rewinds. Natural and instant.</p></div>
-    <div class="step"><div class="step-num">4</div><h3>Speed = rate</h3><p>Gesture speed maps to scrub speed — from frame-by-frame to rapid scan.</p></div>
+    <div class="step"><div class="step-num">4</div><h3>Speed = rate</h3><p>Angular velocity maps to scrub speed — frame-by-frame to rapid scan.</p></div>
     <div class="step"><div class="step-num">5</div><h3>Lift to resume</h3><p>Remove your finger and playback resumes from the new position.</p></div>
   </div>
 </section>
 
-<!-- COMPARISON -->
+<!-- ═══════════════════════ COMPARISON ═══════════════════════ -->
 <section>
-  <h2>Digi-Jog vs. Progress Bar</h2>
+  <h2>Why a Circle?</h2>
+  <p class="section-sub">Every smartphone and tablet on the planet uses the same video navigation method: a tiny progress bar at the bottom of the screen. It has fundamental ergonomic and precision limits.</p>
   <div class="compare">
     <div class="compare-card old">
-      <h3>Traditional Progress Bar</h3>
+      <h3>Linear progress bar</h3>
       <ul>
-        <li>Fixed to screen bottom edge</li>
-        <li>Requires two hands on large devices</li>
-        <li>Imprecise on long videos</li>
-        <li>Hidden during playback</li>
-        <li>No speed feedback loop</li>
+        <li>Anchored to bottom edge — outside thumb's reach on large devices</li>
+        <li>Disappears during playback; requires a preliminary tap to reveal</li>
+        <li>Precision degrades as video duration increases</li>
+        <li>Burns screen real-estate during navigation</li>
+        <li>No proportional speed control without separate buttons</li>
       </ul>
     </div>
     <div class="compare-card new">
-      <h3>Digi-Jog</h3>
+      <h3>Digi-Jog gesture</h3>
       <ul>
-        <li>Works anywhere on screen</li>
-        <li>Single thumb, one hand</li>
-        <li>Frame-by-frame to fast-forward</li>
-        <li>Works on active video</li>
-        <li>Gesture speed = scrub speed</li>
+        <li>Works anywhere on the screen — one thumb, any grip</li>
+        <li>Performs directly on the active video; no UI to reveal</li>
+        <li>Frame-accurate at low gesture speed; rapid at high speed</li>
+        <li>Zero on-screen chrome required during scrubbing</li>
+        <li>Continuous, gesture-velocity-proportional rate</li>
       </ul>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
+<!-- ═══════════════════════ APPLICATIONS ═══════════════════════ -->
+<section id="applications">
+  <h2>Where It Fits</h2>
+  <p class="section-sub">Digi-Jog is purpose-built for any application where users scrub long-form video on a touch device. The strongest fits, prioritized:</p>
+  <div class="apps">
+    <div class="app">
+      <div class="app-icon">⌖</div>
+      <h3>Security &amp; surveillance review</h3>
+      <p>Investigators scrubbing through hours of camera footage on tablets. Frame-accurate review, no chrome consumed.</p>
+    </div>
+    <div class="app">
+      <div class="app-icon">▶</div>
+      <h3>Sports performance analysis</h3>
+      <p>Coaches reviewing plays on the sideline, one-handed, in seconds. Frame-by-frame breakdown without two-handed grips.</p>
+    </div>
+    <div class="app">
+      <div class="app-icon">▢</div>
+      <h3>Mobile video editing</h3>
+      <p>Touch-first editors gain a precision scrub gesture that feels native — no progress bar contention with track UI.</p>
+    </div>
+    <div class="app">
+      <div class="app-icon">◈</div>
+      <h3>Fleet &amp; dashcam review</h3>
+      <p>Safety managers reviewing incident footage on iPads. Faster scrub means lower minutes-per-incident.</p>
+    </div>
+    <div class="app">
+      <div class="app-icon">◐</div>
+      <h3>Drone &amp; capture review</h3>
+      <p>Pilots finding the perfect shot in long aerial captures, on the same device that controls the drone.</p>
+    </div>
+    <div class="app">
+      <div class="app-icon">●</div>
+      <h3>Body-cam evidence</h3>
+      <p>Officers reviewing long-form body-camera footage. Less chrome, more screen, more efficient review.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ LICENSING ═══════════════════════ -->
+<section id="licensing">
+  <h2>Licensing</h2>
+  <p class="section-sub">Digi-Jog is available for licensing under flexible structures designed to fit both pre-grant and post-grant timelines.</p>
+  <div class="licensing-grid">
+    <div class="license-card">
+      <div class="label">Recommended</div>
+      <h3>Option agreement</h3>
+      <p>Small upfront fee secures the right to convert into a full license at pre-agreed terms upon patent issuance. 18-month term. Locks in price; no obligation if the patent never grants.</p>
+    </div>
+    <div class="license-card">
+      <div class="label">Standard</div>
+      <h3>Non-exclusive license</h3>
+      <p>Per-device or revenue-share royalty for licensees implementing Digi-Jog in production. Available to multiple licensees in parallel.</p>
+    </div>
+    <div class="license-card">
+      <div class="label">Premium</div>
+      <h3>Time-limited exclusivity</h3>
+      <p>Exclusive rights within a defined product category for 12–24 months in exchange for an upfront payment plus a higher royalty.</p>
+    </div>
+    <div class="license-card">
+      <div class="label">Developer</div>
+      <h3>SDK / drop-in library</h3>
+      <p>Production-ready iOS, Android, and Web SDKs licensed per-app. Designed for indie developers and mid-cap mobile apps.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ CTA ═══════════════════════ -->
 <div class="cta-section">
-  <h2>Licensing Inquiries</h2>
-  <p>Digi-Jog is available for licensing to streaming platforms, OS vendors, video player developers, and security software companies.</p>
-  <a class="cta-email" href="mailto:cwneogeo@gmail.com">cwneogeo@gmail.com</a>
+  <h2>Licensing inquiries</h2>
+  <p>For inquiries about licensing Digi-Jog into your product, request a technical brief, or schedule a 15-minute demo, please reach out directly.</p>
+  <a class="cta-email" href="mailto:licensing@digijog.com?subject=Digi-Jog%20licensing%20inquiry">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4h12v8H2z"/><path d="M2 4l6 5 6-5"/></svg>
+    licensing@digijog.com
+  </a>
+  <div class="cta-secondary">
+    Inventor: Carl Julian Wittig &middot; <a href="mailto:carl@digijog.com">carl@digijog.com</a>
+  </div>
 </div>
 
 <footer>
-  &copy; 2025 Carl Julian Wittig &nbsp;&mdash;&nbsp; DIGI-JOG &nbsp;&mdash;&nbsp; Patent Pending &nbsp;&mdash;&nbsp; All Rights Reserved
+  <div class="footer-row">
+    <span>&copy; 2026 Carl Julian Wittig</span>
+    <span class="sep">·</span>
+    <span>DIGI-JOG</span>
+    <span class="sep">·</span>
+    <span>U.S. Patent Application 19/658,510</span>
+    <span class="sep">·</span>
+    <a href="mailto:licensing@digijog.com">licensing@digijog.com</a>
+  </div>
+  <div>All rights reserved.</div>
 </footer>
 
 <script>
-const canvas = document.getElementById('vc');
-const ctx = canvas.getContext('2d');
-const pw = document.getElementById('pw');
-const ring = document.getElementById('ring');
-const dot = document.getElementById('dot');
-const arr = document.getElementById('arr');
-const si = document.getElementById('si');
-const pgb = document.getElementById('pgb');
-const tl = document.getElementById('tl');
-const sb = document.getElementById('sb');
-const playOverlay = document.getElementById('play-overlay');
-const bpl = document.getElementById('bpl');
-const brs = document.getElementById('brs');
+/* ════════════════════════════════════════════════
+   Reusable Digi-Jog gesture player.
+   mode: 'video' (HTMLVideoElement) or 'canvas' (synthetic).
+   ════════════════════════════════════════════════ */
+function createPlayer(opts) {
+  const pw = document.getElementById(opts.wrap);
+  const ring = document.getElementById(opts.ring);
+  const dot = document.getElementById(opts.dot);
+  const arr = document.getElementById(opts.arr);
+  const si = document.getElementById(opts.si);
+  const pgb = document.getElementById(opts.pgb);
+  const tl = document.getElementById(opts.tl);
+  const sb = document.getElementById(opts.sb);
+  const po = document.getElementById(opts.po);
+  const bpl = document.getElementById(opts.bpl);
+  const brs = document.getElementById(opts.brs);
 
-const DURATION = 180;
-let currentTime = 0;
-let playing = false;
-let lastTs = null;
-let rafId = null;
-let scrubbing = false;
+  const isVideo = opts.mode === 'video';
+  const video = isVideo ? document.getElementById(opts.video) : null;
+  const canvas = !isVideo ? document.getElementById(opts.canvas) : null;
+  const ctx = canvas ? canvas.getContext('2d') : null;
 
-const SCENES = [
-  {t:0,   bg:'#1A3A5C', label:'Overview',             sub:'The Digi-Jog Method'},
-  {t:30,  bg:'#0F6E56', label:'How It Works',          sub:'Gesture Recognition'},
-  {t:60,  bg:'#533AB7', label:'Market Opportunity',    sub:'6.8B Smartphone Users'},
-  {t:90,  bg:'#993C1D', label:'Competitive Advantage', sub:'No UI Widget Required'},
-  {t:120, bg:'#185FA5', label:'Licensing Model',       sub:'Platform & Per-Device'},
-  {t:150, bg:'#3B6D11', label:'Contact',               sub:'cwneogeo@gmail.com'},
-];
+  let DURATION = isVideo ? 0 : 180;
+  let currentTime = 0;
+  let playing = false;
+  let lastTs = null;
+  let scrubbing = false;
 
-function getScene(t) {
-  let s = SCENES[0];
-  for (const sc of SCENES) { if (t >= sc.t) s = sc; }
-  return s;
-}
+  /* ── Seek throttling (video mode only) ──────────────────────
+     Setting video.currentTime fires an async seek. If the user
+     fires mousemove faster than seeks can complete, requests pile
+     up and the rendered frame stalls. We keep at most ONE seek
+     in flight: pendingSeekTarget is the latest desired time,
+     seekInFlight tracks whether a seek is currently underway.
+     The 'seeked' event drains pending targets one at a time. */
+  let seekInFlight = false;
+  let pendingSeekTarget = -1;
 
-function fmt(s) {
-  s = Math.max(0, Math.min(DURATION, Math.floor(s)));
-  return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
-}
-
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
-  ctx.closePath();
-}
-
-function drawFrame() {
-  const W = canvas.width, H = canvas.height;
-  const sc = getScene(currentTime);
-  const pct = currentTime / DURATION;
-
-  ctx.fillStyle = sc.bg;
-  ctx.fillRect(0,0,W,H);
-
-  const offset = (currentTime * 35) % 90;
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  ctx.lineWidth = 24;
-  for (let x = -H + offset; x < W+H; x += 90) {
-    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x+H,H); ctx.stroke();
+  function requestVideoSeek(t) {
+    if (!isVideo) return;
+    if (isNaN(video.duration) || video.duration <= 0) return;
+    t = Math.max(0, Math.min(video.duration - 0.01, t));
+    pendingSeekTarget = t;
+    if (seekInFlight) return;
+    seekInFlight = true;
+    if (typeof video.fastSeek === 'function') {
+      video.fastSeek(t);   // keyframe-accurate, optimized for scrubbing
+    } else {
+      video.currentTime = t;
+    }
   }
 
-  const cw = Math.min(W*0.78, 400), ch = 160;
-  const cx2 = W/2, cy2 = H/2;
-  ctx.fillStyle = 'rgba(0,0,0,0.42)';
-  roundRect(ctx, cx2-cw/2, cy2-ch/2, cw, ch, 16);
-  ctx.fill();
-
-  ctx.fillStyle = 'rgba(255,255,255,0.15)';
-  ctx.fillRect(cx2-cw/2, cy2-ch/2, cw, 3);
-
-  ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.font = `600 ${Math.round(W*0.026)}px -apple-system, sans-serif`;
-  ctx.fillText('DIGI-JOG  ·  PATENT PENDING', cx2, cy2 - 44);
-
-  ctx.fillStyle = '#ffffff';
-  ctx.font = `700 ${Math.round(W*0.06)}px -apple-system, sans-serif`;
-  ctx.fillText(sc.label, cx2, cy2 - 8);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.65)';
-  ctx.font = `400 ${Math.round(W*0.033)}px -apple-system, sans-serif`;
-  ctx.fillText(sc.sub, cx2, cy2 + 24);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.4)';
-  ctx.font = `400 ${Math.round(W*0.026)}px -apple-system, sans-serif`;
-  ctx.fillText(fmt(currentTime) + ' / ' + fmt(DURATION), cx2, cy2 + 56);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.18)';
-  ctx.fillRect(0, H-5, W, 5);
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.fillRect(0, H-5, W*pct, 5);
-}
-
-function resizeCanvas() {
-  const r = pw.getBoundingClientRect();
-  canvas.width = Math.round(r.width);
-  canvas.height = Math.round(r.height);
-  drawFrame();
-}
-
-function updateUI() {
-  pgb.style.width = ((currentTime/DURATION)*100).toFixed(1)+'%';
-  tl.textContent = fmt(currentTime)+' / '+fmt(DURATION);
-  if (scrubbing) { sb.textContent='Scrubbing'; sb.className='status-pill scrub'; }
-  else if (playing) { sb.textContent='Playing'; sb.className='status-pill play'; }
-  else { sb.textContent='Paused'; sb.className='status-pill'; }
-}
-
-function startPlay() {
-  playing=true; lastTs=null;
-  playOverlay.style.display='none';
-  bpl.textContent='Pause';
-}
-function stopPlay() {
-  playing=false; bpl.textContent='Play';
-  if (currentTime>=DURATION) { currentTime=DURATION; playOverlay.style.display='flex'; }
-}
-
-function loop(ts) {
-  if (lastTs!==null && playing) {
-    const dt=(ts-lastTs)/1000;
-    currentTime=Math.min(DURATION, currentTime+dt);
-    if (currentTime>=DURATION) stopPlay();
+  /* ---- Synthetic-canvas content (Demo 2) ---- */
+  const SCENES = [
+    {t:0,   bg:'#1A3A5C', label:'The Digi-Jog Method',     sub:'A circle replaces the progress bar'},
+    {t:30,  bg:'#0F6E56', label:'Gesture Recognition',     sub:'Anywhere on the active video'},
+    {t:60,  bg:'#533AB7', label:'Frame-Accurate Precision', sub:'Slow circle = frame-by-frame'},
+    {t:90,  bg:'#B7651E', label:'Rapid Scan',              sub:'Fast circle = rapid scrubbing'},
+    {t:120, bg:'#185FA5', label:'Available for Licensing',  sub:'Option, non-exclusive, exclusive, SDK'},
+    {t:150, bg:'#3B6D11', label:'Contact',                 sub:'licensing@digijog.com'},
+  ];
+  function getScene(t) {
+    let s = SCENES[0];
+    for (const sc of SCENES) { if (t >= sc.t) s = sc; }
+    return s;
   }
-  lastTs=ts;
-  drawFrame(); updateUI();
-  rafId=requestAnimationFrame(loop);
-}
 
-// Gesture
-let isDown=false, gx=0, gy=0, lastAng=null, accumulated=0;
-let gestureActive=false, wasPlaying=false;
-
-function getPos(e) {
-  const r=pw.getBoundingClientRect();
-  const src=e.touches?e.touches[0]:e;
-  return {x:src.clientX-r.left, y:src.clientY-r.top};
-}
-function angDiff(a,b) {
-  let d=a-b;
-  while(d>Math.PI) d-=2*Math.PI;
-  while(d<-Math.PI) d+=2*Math.PI;
-  return d;
-}
-
-function onDown(e) {
-  if (playOverlay.style.display!=='none') return;
-  e.preventDefault();
-  const p=getPos(e);
-  isDown=true; gx=p.x; gy=p.y; lastAng=null; accumulated=0; gestureActive=false;
-  dot.style.left=p.x+'px'; dot.style.top=p.y+'px'; dot.className='on';
-  ring.style.left=p.x+'px'; ring.style.top=p.y+'px';
-  ring.style.width='80px'; ring.style.height='80px';
-  ring.style.marginLeft='-40px'; ring.style.marginTop='-40px';
-  ring.className='';
-}
-function onMove(e) {
-  if(!isDown) return; e.preventDefault();
-  const p=getPos(e);
-  dot.style.left=p.x+'px'; dot.style.top=p.y+'px';
-  const dx=p.x-gx, dy=p.y-gy;
-  const dist=Math.sqrt(dx*dx+dy*dy);
-  const rad=Math.max(30,dist);
-  ring.style.left=gx+'px'; ring.style.top=gy+'px';
-  ring.style.width=(rad*2)+'px'; ring.style.height=(rad*2)+'px';
-  ring.style.marginLeft=-rad+'px'; ring.style.marginTop=-rad+'px';
-  if(dist<10) return;
-  const ang=Math.atan2(p.y-gy, p.x-gx);
-  if(lastAng===null){lastAng=ang; ring.className='on'; return;}
-  const diff=angDiff(ang,lastAng); lastAng=ang; accumulated+=diff;
-  if(!gestureActive && Math.abs(accumulated)>0.28){
-    gestureActive=true; wasPlaying=playing;
-    if(playing) stopPlay();
-    scrubbing=true;
+  function fmt(s) {
+    if (!isFinite(s) || s < 0) s = 0;
+    if (s > DURATION) s = DURATION;
+    s = Math.floor(s);
+    return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
   }
-  if(gestureActive){
-    const speed=(Math.abs(diff)/Math.PI)*DURATION*0.045;
-    const dir=diff>0?1:-1;
-    currentTime=Math.max(0,Math.min(DURATION,currentTime+dir*speed));
-    arr.textContent=dir>0?'Forward ▶':'◀ Rewind';
-    arr.className='on';
-    si.textContent=fmt(currentTime);
-    si.className='on';
+
+  function roundRect(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x+r,y); c.lineTo(x+w-r,y); c.quadraticCurveTo(x+w,y,x+w,y+r);
+    c.lineTo(x+w,y+h-r); c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    c.lineTo(x+r,y+h); c.quadraticCurveTo(x,y+h,x,y+h-r);
+    c.lineTo(x,y+r); c.quadraticCurveTo(x,y,x+r,y);
+    c.closePath();
   }
-}
-function onUp() {
-  if(!isDown) return; isDown=false;
-  dot.className=''; ring.className=''; arr.className=''; si.className='';
-  if(gestureActive){
-    scrubbing=false;
-    if(wasPlaying) startPlay();
-    gestureActive=false;
+
+  function drawCanvasFrame() {
+    if (!canvas) return;
+    const W = canvas.width, H = canvas.height;
+    const sc = getScene(currentTime);
+    const pct = currentTime / DURATION;
+
+    ctx.fillStyle = sc.bg;
+    ctx.fillRect(0,0,W,H);
+
+    const offset = (currentTime * 35) % 90;
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 24;
+    for (let x = -H + offset; x < W+H; x += 90) {
+      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x+H,H); ctx.stroke();
+    }
+
+    const cw = Math.min(W*0.78, 460), ch = 170;
+    const cx2 = W/2, cy2 = H/2;
+    ctx.fillStyle = 'rgba(0,0,0,0.42)';
+    roundRect(ctx, cx2-cw/2, cy2-ch/2, cw, ch, 16);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fillRect(cx2-cw/2, cy2-ch/2, cw, 3);
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(0,180,216,0.75)';
+    ctx.font = `700 ${Math.round(W*0.024)}px -apple-system, sans-serif`;
+    ctx.fillText('DIGI · JOG', cx2, cy2 - 52);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `800 ${Math.round(W*0.052)}px -apple-system, sans-serif`;
+    ctx.fillText(sc.label, cx2, cy2 - 10);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = `400 ${Math.round(W*0.028)}px -apple-system, sans-serif`;
+    ctx.fillText(sc.sub, cx2, cy2 + 22);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = `500 ${Math.round(W*0.024)}px -apple-system, sans-serif`;
+    ctx.fillText(fmt(currentTime) + ' / ' + fmt(DURATION), cx2, cy2 + 56);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fillRect(0, H-5, W, 5);
+    ctx.fillStyle = 'rgba(0,180,216,0.85)';
+    ctx.fillRect(0, H-5, W*pct, 5);
   }
+
+  function resizeCanvas() {
+    if (!canvas) return;
+    const r = pw.getBoundingClientRect();
+    canvas.width = Math.round(r.width);
+    canvas.height = Math.round(r.height);
+    drawCanvasFrame();
+  }
+
+  function updateUI() {
+    const pct = DURATION > 0 ? (currentTime/DURATION)*100 : 0;
+    pgb.style.width = pct.toFixed(1)+'%';
+    tl.textContent = fmt(currentTime)+' / '+fmt(DURATION);
+    if (scrubbing) { sb.textContent='Scrubbing'; sb.className='status-pill scrub'; }
+    else if (playing) { sb.textContent='Playing'; sb.className='status-pill play'; }
+    else { sb.textContent='Paused'; sb.className='status-pill'; }
+  }
+
+  function syncFromVideo() {
+    if (!isVideo) return;
+    if (!isNaN(video.duration) && video.duration > 0) DURATION = video.duration;
+    // Critical: do NOT overwrite currentTime while the user is scrubbing.
+    // The browser's seek is async — reading video.currentTime mid-seek
+    // returns the OLD position and would cancel the scrub.
+    if (!scrubbing) {
+      currentTime = video.currentTime || 0;
+    }
+  }
+
+  function startPlay() {
+    playing = true; lastTs = null;
+    po.style.display = 'none';
+    bpl.textContent = 'Pause';
+    if (isVideo) {
+      const p = video.play();
+      if (p && p.catch) p.catch(()=>{});
+    }
+  }
+  function stopPlay() {
+    playing = false;
+    bpl.textContent = 'Play';
+    if (isVideo) video.pause();
+    if (currentTime >= DURATION && DURATION > 0) {
+      currentTime = DURATION;
+      po.style.display = 'flex';
+    }
+  }
+
+  function loop(ts) {
+    if (isVideo) {
+      syncFromVideo();
+    } else {
+      if (lastTs !== null && playing) {
+        const dt = (ts - lastTs)/1000;
+        currentTime = Math.min(DURATION, currentTime + dt);
+        if (currentTime >= DURATION) stopPlay();
+      }
+      lastTs = ts;
+      drawCanvasFrame();
+    }
+    updateUI();
+    requestAnimationFrame(loop);
+  }
+
+  /* ---- gesture handling ---- */
+  let isDown = false, gx = 0, gy = 0, lastAng = null, accumulated = 0;
+  let gestureActive = false, wasPlaying = false;
+
+  function getPos(e) {
+    const r = pw.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return { x: src.clientX - r.left, y: src.clientY - r.top };
+  }
+  function angDiff(a, b) {
+    let d = a - b;
+    while (d > Math.PI) d -= 2*Math.PI;
+    while (d < -Math.PI) d += 2*Math.PI;
+    return d;
+  }
+
+  function onDown(e) {
+    if (po.style.display !== 'none') return;
+    e.preventDefault();
+    const p = getPos(e);
+    isDown = true; gx = p.x; gy = p.y; lastAng = null; accumulated = 0; gestureActive = false;
+    dot.style.left = p.x+'px'; dot.style.top = p.y+'px'; dot.className = 'dot on';
+    ring.style.left = p.x+'px'; ring.style.top = p.y+'px';
+    ring.style.width = '80px'; ring.style.height = '80px';
+    ring.className = 'ring';
+  }
+  function onMove(e) {
+    if (!isDown) return; e.preventDefault();
+    const p = getPos(e);
+    dot.style.left = p.x+'px'; dot.style.top = p.y+'px';
+    const dx = p.x-gx, dy = p.y-gy;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const rad = Math.max(30, dist);
+    ring.style.left = gx+'px'; ring.style.top = gy+'px';
+    ring.style.width = (rad*2)+'px'; ring.style.height = (rad*2)+'px';
+    if (dist < 10) return;
+    const ang = Math.atan2(p.y-gy, p.x-gx);
+    if (lastAng === null) { lastAng = ang; ring.className = 'ring on'; return; }
+    const diff = angDiff(ang, lastAng); lastAng = ang; accumulated += diff;
+    if (!gestureActive && Math.abs(accumulated) > 0.28) {
+      gestureActive = true; wasPlaying = playing;
+      if (playing) stopPlay();
+      scrubbing = true;
+    }
+    if (gestureActive) {
+      const speed = (Math.abs(diff)/Math.PI) * (DURATION || 180) * 0.045;
+      const dir = diff > 0 ? 1 : -1;
+      currentTime = Math.max(0, Math.min(DURATION || 180, currentTime + dir*speed));
+      if (isVideo) {
+        requestVideoSeek(currentTime); // throttled — never queues seeks
+      }
+      arr.textContent = dir > 0 ? 'Forward ▶' : '◀ Rewind';
+      arr.className = 'arrow-pill on';
+      si.textContent = fmt(currentTime);
+      si.className = 'scrub-time on';
+    }
+  }
+  function onUp() {
+    if (!isDown) return; isDown = false;
+    dot.className = 'dot'; ring.className = 'ring';
+    arr.className = 'arrow-pill'; si.className = 'scrub-time';
+    if (gestureActive) {
+      // Land on the final position with a frame-accurate seek
+      // (fastSeek snaps to keyframes, which is fine mid-scrub
+      // but visually wrong as the final resting frame).
+      if (isVideo && !isNaN(video.duration)) {
+        try { video.currentTime = currentTime; } catch (e) {}
+      }
+      scrubbing = false;
+      if (wasPlaying) startPlay();
+      gestureActive = false;
+    }
+  }
+
+  pw.addEventListener('mousedown', onDown);
+  pw.addEventListener('mousemove', onMove);
+  pw.addEventListener('mouseup', onUp);
+  pw.addEventListener('mouseleave', onUp);
+  pw.addEventListener('touchstart', onDown, { passive: false });
+  pw.addEventListener('touchmove', onMove, { passive: false });
+  pw.addEventListener('touchend', onUp);
+
+  po.addEventListener('click', () => {
+    if (currentTime >= DURATION && DURATION > 0) {
+      currentTime = 0;
+      if (isVideo) video.currentTime = 0;
+    }
+    startPlay();
+  });
+  bpl.addEventListener('click', () => { playing ? stopPlay() : startPlay(); });
+  brs.addEventListener('click', () => {
+    currentTime = 0;
+    if (isVideo) video.currentTime = 0;
+    stopPlay();
+    po.style.display = 'flex';
+    updateUI();
+    if (!isVideo) drawCanvasFrame();
+  });
+
+  if (isVideo) {
+    video.addEventListener('loadedmetadata', () => {
+      DURATION = video.duration || 0;
+      updateUI();
+    });
+    video.addEventListener('ended', () => stopPlay());
+    // Seek-queue drain: when the in-flight seek completes, if a
+    // newer target was requested, kick the next one immediately.
+    video.addEventListener('seeked', () => {
+      seekInFlight = false;
+      if (pendingSeekTarget >= 0 &&
+          Math.abs(pendingSeekTarget - video.currentTime) > 0.04) {
+        const t = pendingSeekTarget;
+        pendingSeekTarget = -1;
+        seekInFlight = true;
+        if (typeof video.fastSeek === 'function') {
+          video.fastSeek(t);
+        } else {
+          video.currentTime = t;
+        }
+      } else {
+        pendingSeekTarget = -1;
+      }
+    });
+    video.addEventListener('error', () =>
+      console.warn('digijog: video error', video.error));
+  } else {
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+  }
+  requestAnimationFrame(loop);
 }
 
-pw.addEventListener('mousedown',onDown);
-pw.addEventListener('mousemove',onMove);
-pw.addEventListener('mouseup',onUp);
-pw.addEventListener('mouseleave',onUp);
-pw.addEventListener('touchstart',onDown,{passive:false});
-pw.addEventListener('touchmove',onMove,{passive:false});
-pw.addEventListener('touchend',onUp);
-
-playOverlay.addEventListener('click',()=>{
-  if(currentTime>=DURATION) currentTime=0;
-  startPlay();
+/* Boot the two players */
+createPlayer({
+  wrap: 'pw1', mode: 'video', video: 'video1',
+  ring: 'ring1', dot: 'dot1', arr: 'arr1', si: 'si1',
+  pgb: 'pgb1', tl: 'tl1', sb: 'sb1', po: 'po1',
+  bpl: 'bpl1', brs: 'brs1'
 });
-bpl.addEventListener('click',()=>{ playing?stopPlay():startPlay(); });
-brs.addEventListener('click',()=>{
-  currentTime=0; stopPlay();
-  playOverlay.style.display='flex';
-  updateUI(); drawFrame();
+createPlayer({
+  wrap: 'pw2', mode: 'canvas', canvas: 'vc2',
+  ring: 'ring2', dot: 'dot2', arr: 'arr2', si: 'si2',
+  pgb: 'pgb2', tl: 'tl2', sb: 'sb2', po: 'po2',
+  bpl: 'bpl2', brs: 'brs2'
 });
+</script>
+</body>
+</html>
+'arr2', si: 'si2',
+  pgb: 'pgb2', tl: 'tl2', sb: 'sb2', po: 'po2',
+  bpl: 'bpl2', brs: 'brs2'
+});
+</script>
+</body>
+</html>
+rentTime >= DURATION && DURATION > 0) {
+      currentTime = 0;
+      if (isVideo) video.currentTime = 0;
+    }
+    startPlay();
+  });
+  bpl.addEventListener('click', () => { playing ? stopPlay() : startPlay(); });
+  brs.addEventListener('click', () => {
+    currentTime = 0;
+    if (isVideo) video.currentTime = 0;
+    stopPlay();
+    po.style.display = 'flex';
+    updateUI();
+    if (!isVideo) drawCanvasFrame();
+  });
 
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-rafId=requestAnimationFrame(loop);
+  if (isVideo) {
+    video.addEventListener('loadedmetadata', () => {
+      DURATION = video.duration || 0;
+      updateUI();
+    });
+    video.addEventListener('ended', () => stopPlay());
+    // Seek-queue drain: when an in-flight seek completes, if a
+    // newer target was requested, kick the next one immediately.
+    video.addEventListener('seeked', () => {
+      seekInFlight = false;
+      if (pendingSeekTarget >= 0 &&
+          Math.abs(pendingSeekTarget - video.currentTime) > 0.04) {
+        const t = pendingSeekTarget;
+        pendingSeekTarget = -1;
+        seekInFlight = true;
+        if (typeof video.fastSeek === 'function') {
+          video.fastSeek(t);
+        } else {
+          video.currentTime = t;
+        }
+      } else {
+        pendingSeekTarget = -1;
+      }
+    });
+    video.addEventListener('error', () =>
+      console.warn('digijog: video error', video.error));
+  } else {
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+  }
+  requestAnimationFrame(loop);
+}
+
+/* Boot the two players */
+createPlayer({
+  wrap: 'pw1', mode: 'video', video: 'video1',
+  ring: 'ring1', dot: 'dot1', arr: 'arr1', si: 'si1',
+  pgb: 'pgb1', tl: 'tl1', sb: 'sb1', po: 'po1',
+  bpl: 'bpl1', brs: 'brs1'
+});
+createPlayer({
+  wrap: 'pw2', mode: 'canvas', canvas: 'vc2',
+  ring: 'ring2', dot: 'dot2', arr: 'arr2', si: 'si2',
+  pgb: 'pgb2', tl: 'tl2', sb: 'sb2', po: 'po2',
+  bpl: 'bpl2', brs: 'brs2'
+});
 </script>
 </body>
 </html>
